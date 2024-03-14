@@ -83,7 +83,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     newMemberList.add(player);
                     memberList.put(player, newMemberList);
                 }
-            } else if(args[0].equalsIgnoreCase("list")) {
+            } else if (args[0].equalsIgnoreCase("list")) {
                 if (currentParty.get(player) == null) {
                     sender.sendMessage(ChatColor.RED + "You are not in a party.");
                     return true;
@@ -111,6 +111,14 @@ public final class PartyChat extends JavaPlugin implements Listener {
                         currentParty.put(player, null);
                     }
                     sender.sendMessage(ChatColor.LIGHT_PURPLE + "You have left your party.");
+                }
+            } else if (args[0].equalsIgnoreCase("disband")) {
+                if (currentParty.get(player) == null) {
+                    sender.sendMessage(ChatColor.RED + "Ok, so how are you going to disband the party if you aren't even in one? You gotta be fucking stupid.");
+                } else if (!currentParty.get(player).equals(player)) {
+                    sender.sendMessage(ChatColor.RED + "You can't take down someone else's fort.");
+                } else {
+                    disbandParty(player);
                 }
             } else if (args[0].equalsIgnoreCase("invite")) {
                 if (currentParty.get(player) != player) {
