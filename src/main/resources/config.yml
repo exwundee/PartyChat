@@ -1,0 +1,59 @@
+console-message: '&cYou can''t talk to us from here, budster.'
+
+# Success Messages
+party-creation-message: '&dYou created a party!'
+party-deletion-message: ''
+
+# %player% replaces to respectful player's IGN (only for messages in this group)
+party-join-message: '&a%player% has joined the party!'
+party-leave-message: '&c%player% has left the party!'
+sender-invite-expired-message : '&cYour party invite to %player% has expired.'
+recipient-invite-expired-message : 'Your invite to %player%''s party has expired.'
+sender-kick-message: '&cYou have kicked %player% from the party.'
+recipient-kick-message: '&cYou have been kicked from %player%''s party.'
+sender-invite-message: '&aYou have invited %player% to your party.'
+recipient-invite-message: '&a%player% has invited you to their party.'
+
+ownership-transferred-message: '&dParty ownership has been transferred to %player%'
+
+party-removed-message: '&cYou have been removed from your party.'
+party-disband-message: '&cYou have disbanded your party.'
+
+party-chat-enabled-message: '&aYou have enabled party chat.'
+party-chat-disabled-message: '&cYou have disabled party chat.'
+
+party-chat-message: '&d[P] &f%player%: %message%'
+
+# Error Messages
+already-in-party-message: '&cYou are already in a party.'
+not-in-party-message: '&cYou are not in a party.'
+not-party-leader-message: '&cYou are not the party leader.'
+player-not-in-party-message: '&cThat player is not in your party.'
+player-already-in-party-message: '&cThat player is already in a party.'
+
+transfer-invalid-arguments-message-message: '&cWho do you want to transfer ownerhsip to?"'
+transer-self-message: '&cYou can''t transfer the party to yourself.'
+
+invite-invalid-arguments-message: '&cWho do you want to invite?'
+already-invited-message: '&cThat player has already been invited.'
+invite-self-message: '&cYou can''t invite yourself.'
+
+recipient-not-online-message: '&cThat player isn''t online.'
+recipient-not-in-party-message: 'They are not in a party.'
+
+kick-invalid-arguments-message: '&cWho do you want to kick?'
+kick-self-message: '&cYou can''t kick yourself.'
+
+join-invalid-arguments-message: '&cWho do you want to join?'
+not-invited-message: '&cYou haven''t been invited to that party.'
+
+# Admin Messages
+spy-enabled-message: '&aSpy mode enabled. (you sneaky bastard!)'
+spy-disabled-message: '&cSpy mode disabled.'
+
+show-invalid-arguments-message: '&cWho do you want to check?'
+show-not-in-party-message: '&c%player% is not in a party.'
+# %player% for player's name, %group% for group owner (for show-message and admin-party-chat-message)
+show-message: '&d%player% is in %group%''s party.'
+
+admin-party-chat-message: '&c[P] &f%player%: %message%'
