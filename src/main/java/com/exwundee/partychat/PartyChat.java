@@ -12,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.units.qual.A;
 
@@ -42,6 +43,14 @@ public final class PartyChat extends JavaPlugin implements Listener {
             for (Player member : memberList.get(currentParty.get(event.getPlayer()))) {
                 member.sendMessage(ChatColor.LIGHT_PURPLE + "[P] " + ChatColor.WHITE + event.getPlayer().getName() + ": " + event.signedMessage().message());
             }
+        }
+    }
+
+    @EventHandler
+    public void onLeave(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+        if (currentParty.get(player).equals(player)) {
+            disbandParty(player);
         }
     }
 
@@ -91,18 +100,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     return true;
                 } else {
                     if (currentParty.get(player) == player) {
-                        for (Player player2 : memberList.get(player)) {
-                            currentParty.put(player2, null);
-                            if (player2 != player) {
-                                player2.sendMessage(ChatColor.RED + "You have been removed from your party.");
-                            } else {
-                                player2.sendMessage(ChatColor.GREEN + "You have disbanded your party.");
-                            }
-                        }
-                        if (inviteList.get(player) != null) {
-                            inviteList.get(player).clear();
-                        }
-                        memberList.get(player).clear();
+                        disbandParty(player);
                     } else {
                         ArrayList<Player> newMemberList = memberList.get(currentParty.get(player));
                         for (Player player2 : memberList.get(currentParty.get(player))) {
@@ -203,6 +201,21 @@ public final class PartyChat extends JavaPlugin implements Listener {
             }
         }
         return true;
+    }
+
+    public void disbandParty(Player player) {
+        for (Player player2 : memberList.get(player)) {
+            currentParty.put(player2, null);
+            if (player2 != player) {
+                player2.sendMessage(ChatColor.RED + "You have been removed from your party.");
+            } else {
+                player2.sendMessage(ChatColor.GREEN + "You have disbanded your party.");
+            }
+        }
+        if (inviteList.get(player) != null) {
+            inviteList.get(player).clear();
+        }
+        memberList.get(player).clear();
     }
 
 }
