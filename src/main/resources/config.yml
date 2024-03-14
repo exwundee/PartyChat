@@ -30,7 +30,7 @@ not-party-leader-message: '&cYou are not the party leader.'
 player-not-in-party-message: '&cThat player is not in your party.'
 player-already-in-party-message: '&cThat player is already in a party.'
 
-transfer-invalid-arguments-message-message: '&cWho do you want to transfer ownerhsip to?"'
+transfer-invalid-arguments-message: '&cWho do you want to transfer ownerhsip to?"'
 transer-self-message: '&cYou can''t transfer the party to yourself.'
 
 invite-invalid-arguments-message: '&cWho do you want to invite?'
