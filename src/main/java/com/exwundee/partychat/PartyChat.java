@@ -57,7 +57,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party create " + ChatColor.WHITE + " - Creates a party.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite " + ChatColor.WHITE + " - Invites player to party.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave " + ChatColor.WHITE + " - Leaves current party.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party info " + ChatColor.WHITE + " - Shows current party info.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party list " + ChatColor.WHITE + " - Shows current party info.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle " + ChatColor.WHITE + " - Toggle party chat.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message> " + ChatColor.WHITE + " - Send a chat to party.");
                 return true;
@@ -74,7 +74,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     newMemberList.add(player);
                     memberList.put(player, newMemberList);
                 }
-            } else if(args[0].equalsIgnoreCase("info")) {
+            } else if(args[0].equalsIgnoreCase("list")) {
                 if (currentParty.get(player) == null) {
                     sender.sendMessage(ChatColor.RED + "You are not in a party.");
                     return true;
