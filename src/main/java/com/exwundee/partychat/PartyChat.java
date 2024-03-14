@@ -177,6 +177,16 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     newInviteList.add(Bukkit.getPlayer(args[1]));
                     inviteList.put(player, newInviteList);
                     Bukkit.getPlayer(args[1]).sendMessage(ChatColor.GREEN + "You have been invited to " + sender.getName() + "'s party.");
+                    Player finalPlayer = player;
+                    Bukkit.getScheduler().runTaskLater(this, () -> {
+                        if (inviteList.get(finalPlayer).contains(Bukkit.getPlayer(args[1]))) {
+                            sender.sendMessage(ChatColor.LIGHT_PURPLE + "Your invite to " + args[1] + " has expired.");
+                            Bukkit.getPlayer(args[1]).sendMessage(ChatColor.GREEN + "Your invite to " + sender.getName() + "'s party has expired.");
+                            ArrayList<Player> newerInviteList = new ArrayList<>();
+                            newerInviteList.remove(Bukkit.getPlayer(args[1]));
+                            inviteList.put(finalPlayer, newerInviteList);
+                        }
+                    }, 20*120);
                 }
             } else if (args[0].equalsIgnoreCase("kick")) {
                 // TODO Prevent player from kicking themselves.
