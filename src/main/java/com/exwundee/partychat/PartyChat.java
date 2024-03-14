@@ -2,6 +2,7 @@ package com.exwundee.partychat;
 
 import io.papermc.paper.event.player.AsyncChatEvent;
 import io.papermc.paper.event.player.ChatEvent;
+import it.unimi.dsi.fastutil.Hash;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -50,7 +51,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
     public void onLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         if (currentParty.get(player).equals(player)) {
-            disbandParty(player);
+            disbandParty(player, false);
         }
     }
 
@@ -63,12 +64,15 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 return true;
             }
             if (args.length == 0) {
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party create " + ChatColor.WHITE + " - Creates a party.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite " + ChatColor.WHITE + " - Invites player to party.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave " + ChatColor.WHITE + " - Leaves current party.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party list " + ChatColor.WHITE + " - Shows current party info.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle " + ChatColor.WHITE + " - Toggle party chat.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message> " + ChatColor.WHITE + " - Send a chat to party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party create " + ChatColor.WHITE + "- Creates a party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite " + ChatColor.WHITE + "- Invites player to party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave " + ChatColor.WHITE + "- Leaves current party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party list " + ChatColor.WHITE + "- Shows current party info.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party kick " + ChatColor.WHITE + "- Kicks player from party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party disband " + ChatColor.WHITE + "- Disbands the party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party transfer " + ChatColor.WHITE + "- Transfers ownership of the party.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle " + ChatColor.WHITE + "- Toggle party chat.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message> " + ChatColor.WHITE + "- Send a chat to party.");
                 return true;
             }
             player = (Player) sender;
@@ -100,7 +104,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     return true;
                 } else {
                     if (currentParty.get(player) == player) {
-                        disbandParty(player);
+                        disbandParty(player, false);
                     } else {
                         ArrayList<Player> newMemberList = memberList.get(currentParty.get(player));
                         for (Player player2 : memberList.get(currentParty.get(player))) {
@@ -118,7 +122,29 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 } else if (!currentParty.get(player).equals(player)) {
                     sender.sendMessage(ChatColor.RED + "You can't take down someone else's fort.");
                 } else {
-                    disbandParty(player);
+                    disbandParty(player, false);
+                }
+            } else if (args[0].equalsIgnoreCase("transfer")) {
+                if (args.length != 2) {
+                    sender.sendMessage(ChatColor.RED + "Who do you want to transfer ownerhsip to?");
+                } else if (currentParty.get(player) == null) {
+                    sender.sendMessage(ChatColor.RED + "You aren't in a party.");
+                } else if (!currentParty.get(player).equals(player)) {
+                    sender.sendMessage(ChatColor.RED + "You can't transfer ownership as a dirty member.");
+                } else if (!memberList.get(player).contains(Bukkit.getOfflinePlayer(args[1]))) {
+                    sender.sendMessage(ChatColor.RED + "That player isn't in your party.");
+                } else if (args[1].equalsIgnoreCase(player.getName())) {
+                    sender.sendMessage(ChatColor.RED + "You can't transfer it to yourself!");
+                } else {
+                    Player newOwner = Bukkit.getPlayer(args[1]);
+                    memberList.put(newOwner, memberList.get(player));
+                    for (Player newPlayer : memberList.get(player)) {
+                        currentParty.put(newPlayer, newOwner);
+                        newPlayer.sendMessage(ChatColor.GREEN + "Party ownership has been transferred over to " + newOwner.getName());
+                    }
+                    memberList.put(player, null);
+                    inviteList.put(player, null);
+                    sender.sendMessage("You have transferred ownership to " + newOwner.getName());
                 }
             } else if (args[0].equalsIgnoreCase("invite")) {
                 if (currentParty.get(player) != player) {
@@ -211,13 +237,15 @@ public final class PartyChat extends JavaPlugin implements Listener {
         return true;
     }
 
-    public void disbandParty(Player player) {
+    public void disbandParty(Player player, boolean hideMessages) {
         for (Player player2 : memberList.get(player)) {
             currentParty.put(player2, null);
-            if (player2 != player) {
-                player2.sendMessage(ChatColor.RED + "You have been removed from your party.");
-            } else {
-                player2.sendMessage(ChatColor.GREEN + "You have disbanded your party.");
+            if (!hideMessages) {
+                if (player2 != player) {
+                    player2.sendMessage(ChatColor.RED + "You have been removed from your party.");
+                } else {
+                    player2.sendMessage(ChatColor.GREEN + "You have disbanded your party.");
+                }
             }
         }
         if (inviteList.get(player) != null) {
