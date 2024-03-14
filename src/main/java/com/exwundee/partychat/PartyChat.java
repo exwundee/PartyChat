@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.Hash;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
     HashMap<Player, ArrayList<Player>> memberList = new HashMap<Player, ArrayList<Player>>();
 
     HashMap<Player, Boolean> isPartyChatEnabled = new HashMap<Player, Boolean>();
+    HashMap<Player, Boolean> isSpying = new HashMap<Player, Boolean>();
 
 
     @Override
@@ -44,6 +46,11 @@ public final class PartyChat extends JavaPlugin implements Listener {
             for (Player member : memberList.get(currentParty.get(event.getPlayer()))) {
                 member.sendMessage(ChatColor.LIGHT_PURPLE + "[P] " + ChatColor.WHITE + event.getPlayer().getName() + ": " + event.signedMessage().message());
             }
+            for (Player spy : Bukkit.getOnlinePlayers()) {
+                if (isSpying.get(spy) != null && isSpying.get(spy)) {
+                    spy.sendMessage(ChatColor.RED + "[P] " + ChatColor.WHITE + event.getPlayer().getName() + ": " + event.signedMessage().message());
+                }
+            }
         }
     }
 
@@ -57,7 +64,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (label.equalsIgnoreCase("party")) {
+        if (command.getName().equalsIgnoreCase("party")) {
             Player player = null;
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "You are not real. Peel your skin off, hurry!");
@@ -172,6 +179,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     Bukkit.getPlayer(args[1]).sendMessage(ChatColor.GREEN + "You have been invited to " + sender.getName() + "'s party.");
                 }
             } else if (args[0].equalsIgnoreCase("kick")) {
+                // TODO Prevent player from kicking themselves.
                 if (args.length != 2) {
                     sender.sendMessage(ChatColor.RED + "Well, who do you wanna kick?");
                 } else if (currentParty.get(player) == null) {
@@ -230,6 +238,35 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     }
                     for (Player member : memberList.get(currentParty.get(player))) {
                         member.sendMessage(ChatColor.LIGHT_PURPLE + "[P] " + ChatColor.WHITE + player.getName() + ": " + stringBuilder.toString());
+                    }
+                    for (Player spy : Bukkit.getOnlinePlayers()) {
+                        if (isSpying.get(spy) != null && isSpying.get(spy)) {
+                            spy.sendMessage(ChatColor.RED + "[P] " + ChatColor.WHITE + player.getName() + ": " + stringBuilder.toString());
+                        }
+                    }
+                }
+            }
+        } else if (command.getName().equalsIgnoreCase("adminparty")) {
+            Player player = (Player) sender;
+            if (args[0].equalsIgnoreCase("spy")) {
+                if (isSpying.get(player) == null || !isSpying.get(player)) {
+                    isSpying.put(player, true);
+                    sender.sendMessage(ChatColor.GREEN + "Spy mode enabled. (you sneaky bastard!)");
+                } else {
+                    isSpying.put(player, false);
+                    sender.sendMessage(ChatColor.RED + "Spy mode disabled. (thanks for respecting the privacy)");
+                }
+            } else if (args[0].equalsIgnoreCase("show")) {
+                if (args.length != 2) {
+                    sender.sendMessage(ChatColor.RED + "Who do you want to show?");
+                } else {
+                    OfflinePlayer checkedPlayer = Bukkit.getOfflinePlayer(args[1]);
+                    if (!checkedPlayer.isOnline()) {
+                        sender.sendMessage(ChatColor.RED + "Erm, buddy, you know they aren't online?");
+                    } else if (currentParty.get(checkedPlayer) == null) {
+                        sender.sendMessage(ChatColor.RED + checkedPlayer.getName() + " isn't in a party.");
+                    } else {
+                        sender.sendMessage(ChatColor.LIGHT_PURPLE + checkedPlayer.getName() + " is in " + currentParty.get(checkedPlayer).getName() + "'s party.");
                     }
                 }
             }
