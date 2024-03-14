@@ -58,7 +58,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite " + ChatColor.WHITE + " - Invites player to party.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave " + ChatColor.WHITE + " - Leaves current party.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party info " + ChatColor.WHITE + " - Shows current party info.");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party chat " + ChatColor.WHITE + " - Toggle party chat.");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle " + ChatColor.WHITE + " - Toggle party chat.");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message> " + ChatColor.WHITE + " - Send a chat to party.");
                 return true;
             }
@@ -93,14 +93,18 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     if (currentParty.get(player) == player) {
                         for (Player player2 : memberList.get(player)) {
                             currentParty.put(player2, null);
-                            player2.sendMessage(ChatColor.RED + "You have been removed from your party.");
+                            if (player2 != player) {
+                                player2.sendMessage(ChatColor.RED + "You have been removed from your party.");
+                            } else {
+                                player2.sendMessage(ChatColor.GREEN + "You have disbanded your party.");
+                            }
                         }
                         if (inviteList.get(player) != null) {
                             inviteList.get(player).clear();
                         }
                         memberList.get(player).clear();
                     } else {
-                        ArrayList<Player> newMemberList = memberList.get(player);
+                        ArrayList<Player> newMemberList = memberList.get(currentParty.get(player));
                         for (Player player2 : memberList.get(currentParty.get(player))) {
                             player2.sendMessage(ChatColor.RED + player.getName() + " has left the party.");
                         }
@@ -135,6 +139,27 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     inviteList.put(player, newInviteList);
                     Bukkit.getPlayer(args[1]).sendMessage(ChatColor.GREEN + "You have been invited to " + sender.getName() + "'s party.");
                 }
+            } else if (args[0].equalsIgnoreCase("kick")) {
+                if (args.length != 2) {
+                    sender.sendMessage(ChatColor.RED + "Well, who do you wanna kick?");
+                } else if (currentParty.get(player) == null) {
+                    sender.sendMessage(ChatColor.RED + "You must be in a party.");
+                } else if (!currentParty.get(player).getName().equalsIgnoreCase(player.getName())) {
+                    sender.sendMessage(ChatColor.RED + "You must be the party leader to kick members.");
+                } else if (!memberList.get(currentParty.get(player)).contains(Bukkit.getPlayer(args[1]))) {
+                    sender.sendMessage(ChatColor.RED + "That player isn't in the party.");
+                } else {
+                    Player kickedPlayer = Bukkit.getPlayer(args[1]);
+                    ArrayList<Player> newMemberList = memberList.get(currentParty.get(kickedPlayer));
+                    sender.sendMessage(ChatColor.GREEN + "You have kicked " + kickedPlayer.getName() + " from the party.");
+                    for (Player player2 : memberList.get(currentParty.get(kickedPlayer))) {
+                        player2.sendMessage(ChatColor.RED + kickedPlayer.getName() + " has left the party.");
+                    }
+                    newMemberList.remove(kickedPlayer);
+                    memberList.put(currentParty.get(kickedPlayer), newMemberList);
+                    currentParty.put(kickedPlayer, null);
+                    kickedPlayer.sendMessage(ChatColor.RED + "You have been kicked from the party.");
+                }
             } else if (args[0].equalsIgnoreCase("join")) {
                  if (args.length != 2) {
                      sender.sendMessage(ChatColor.RED + "Well, who do you wanna join?");
@@ -153,7 +178,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                         player2.sendMessage(ChatColor.LIGHT_PURPLE + " has joined the party!");
                     }
                 }
-            } else if (args[0].equalsIgnoreCase("chat")) {
+            } else if (args[0].equalsIgnoreCase("toggle")) {
                 if (currentParty.get(player) == null) {
                     sender.sendMessage(ChatColor.RED + "You are aware that you aren't in a party, right?");
                     return true;
