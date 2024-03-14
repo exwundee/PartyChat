@@ -2,7 +2,6 @@ console-message: '&cYou can''t talk to us from here, budster.'
 
 # Success Messages
 party-creation-message: '&dYou created a party!'
-party-deletion-message: ''
 
 # %player% replaces to respectful player's IGN (only for messages in this group)
 party-join-message: '&a%player% has joined the party!'
