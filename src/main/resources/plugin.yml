@@ -11,3 +11,7 @@ commands:
   party:
     description: Party chat
     aliases: [p]
+  adminparty:
+    permission: partychat.admin
+    description: Admin party chat.
+    aliases: [adminp, ap]
