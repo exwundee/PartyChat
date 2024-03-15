@@ -78,15 +78,15 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 sender.sendMessage("");
                 sender.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "PARTY HELP MENU");
                 sender.sendMessage("");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party create" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Creates a party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Invites player to party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Leaves current party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party list" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Shows current party info");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party kick" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Kicks player from party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party disband" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Disbands the party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party transfer" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Transfers ownership of the party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Toggle party chat");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message>" + ChatColor.WHITE + " - " + ChatColor.YELLOW + "Send a chat to party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party create" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Creates a party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Invites player to party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Leaves current party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party list" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Shows current party info");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party kick" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Kicks player from party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party disband" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Disbands the party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party transfer" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Transfers ownership of the party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Toggle party chat");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Send a chat to party");
                 return true;
             }
             player = (Player) sender;
