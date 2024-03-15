@@ -281,6 +281,10 @@ public final class PartyChat extends JavaPlugin implements Listener {
             }
         } else if (command.getName().equalsIgnoreCase("adminparty")) {
             Player player = (Player) sender;
+            if (args.length == 0) {
+                sender.sendMessage(ChatColor.RED + "/adminparty <spy/show> [<player>]");
+                return true;
+            }
             if (args[0].equalsIgnoreCase("spy")) {
                 if (isSpying.get(player) == null || !isSpying.get(player)) {
                     isSpying.put(player, true);
