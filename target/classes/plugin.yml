@@ -1,5 +1,5 @@
 name: PartyChat
-version: '1.1'
+version: '1.1.1'
 main: com.exwundee.partychat.PartyChat
 api-version: '1.20'
 prefix: PartyChat

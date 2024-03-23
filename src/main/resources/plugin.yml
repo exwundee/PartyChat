@@ -6,7 +6,6 @@ prefix: PartyChat
 authors: [x1D, Shieldly]
 description: Players can now talk in private! Made with love by Shieldly.
 website: https://exwundee.github.io/
-folia-supported: true
 
 commands:
   party:

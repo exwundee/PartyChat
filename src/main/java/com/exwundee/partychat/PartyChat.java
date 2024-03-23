@@ -79,12 +79,14 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 sender.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "PARTY HELP MENU");
                 sender.sendMessage("");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party create" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Creates a party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Invites player to party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party invite <player>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Invites player to party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party accept <player>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Accepts and joins party request");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party deny <player>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Denies party request");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party leave" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Leaves current party");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party list" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Shows current party info");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party kick" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Kicks player from party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party kick <player>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Kicks player from party");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party disband" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Disbands the party");
-                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party transfer" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Transfers ownership of the party");
+                sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party transfer <player>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Transfers ownership of the party");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party toggle" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Toggle party chat");
                 sender.sendMessage(ChatColor.LIGHT_PURPLE + "/party <message>" + ChatColor.GRAY + " - " + ChatColor.YELLOW + "Send a chat to party");
                 return true;
@@ -202,7 +204,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                             newerInviteList.remove(Bukkit.getPlayer(args[1]));
                             inviteList.put(finalPlayer, newerInviteList);
                         }
-                    }, 20*120);
+                    }, 20 * 120);
                 }
             } else if (args[0].equalsIgnoreCase("kick")) {
                 // TODO Prevent player from kicking themselves.
@@ -231,10 +233,20 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     kickedPlayer.sendMessage(getConfigMessage("recipient-kick-message")
                             .replaceAll("%player%", player.getName()));
                 }
-            } else if (args[0].equalsIgnoreCase("join")) {
-                 if (args.length != 2) {
+            } else if (args[0].equalsIgnoreCase("deny")) {
+                if (args.length != 2) {
+                    sender.sendMessage(getConfigMessage("deny-invalid-arguments-message"));
+                } else if (inviteList.get(Bukkit.getPlayer(args[1])) == null || !(inviteList.get(Bukkit.getPlayer(args[1])).contains(player))) {
+                    sender.sendMessage(getConfigMessage("not-invited-message"));
+                } else {
+                    inviteList.get(Bukkit.getPlayer(args[1])).remove(player);
+                    sender.sendMessage(getConfigMessage("deny-success-message")
+                            .replaceAll("%player%", Bukkit.getPlayer(args[1]).getName()));
+                }
+            } else if (args[0].equalsIgnoreCase("join") || args[0].equalsIgnoreCase("accept")) {
+                if (args.length != 2) {
                      sender.sendMessage(getConfigMessage("join-invalid-arguments-message"));
-                 } else if (inviteList.get(Bukkit.getPlayer(args[1])) == null || !(inviteList.get(Bukkit.getPlayer(args[1])).contains(player))) {
+                } else if (inviteList.get(Bukkit.getPlayer(args[1])) == null || !(inviteList.get(Bukkit.getPlayer(args[1])).contains(player))) {
                     sender.sendMessage(getConfigMessage("not-invited-message"));
                 } else if (currentParty.get(player) != null) {
                     sender.sendMessage(getConfigMessage("already-in-party-message"));

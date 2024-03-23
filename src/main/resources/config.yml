@@ -46,6 +46,9 @@ kick-self-message: '&cYou can''t kick yourself.'
 join-invalid-arguments-message: '&cWho do you want to join?'
 not-invited-message: '&cYou haven''t been invited to that party.'
 
+deny-invalid-arguments-message: '&cYou can''t decline the presence of nothing.'
+deny-success-message: '&aYou declined %player%''s request.'
+
 # Admin Messages
 spy-enabled-message: '&aSpy mode enabled. (you sneaky bastard!)'
 spy-disabled-message: '&cSpy mode disabled.'
