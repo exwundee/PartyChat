@@ -195,7 +195,6 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     Player finalPlayer = player;
                     Bukkit.getScheduler().runTaskLater(this, () -> {
                         if (inviteList.get(finalPlayer).contains(Bukkit.getPlayer(args[1]))) {
-                            // args[1
                             sender.sendMessage(getConfigMessage("sender-invite-expired-message")
                                     .replaceAll("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
                             Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-expired-message")
@@ -207,7 +206,6 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     }, 20 * 120);
                 }
             } else if (args[0].equalsIgnoreCase("kick")) {
-                // TODO Prevent player from kicking themselves.
                 if (args.length != 2) {
                     sender.sendMessage(getConfigMessage("kick-invalid-arguments-message"));
                 } else if (currentParty.get(player) == null) {
