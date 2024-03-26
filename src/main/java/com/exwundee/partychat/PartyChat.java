@@ -9,7 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -35,22 +37,25 @@ public final class PartyChat extends JavaPlugin implements Listener {
         saveDefaultConfig();
     }
 
-    @EventHandler
-    public void onChat(AsyncChatEvent event) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onChat(AsyncPlayerChatEvent event) {
         if (isPartyChatEnabled.get(event.getPlayer()) != null && (currentParty.get(event.getPlayer()) != null && isPartyChatEnabled.get(event.getPlayer()))) {
             event.setCancelled(true);
             for (Player member : memberList.get(currentParty.get(event.getPlayer()))) {
                 member.sendMessage(getConfigMessage("party-chat-message")
                         .replaceAll("%player%", event.getPlayer().getName())
-                        .replaceAll("%message%", event.signedMessage().message()));
+                        .replaceAll("%message%", event.getMessage()));
             }
             for (Player spy : Bukkit.getOnlinePlayers()) {
                 if (isSpying.get(spy) != null && isSpying.get(spy)) {
                     spy.sendMessage(getConfigMessage("admin-party-chat-message")
                             .replaceAll("%player%", event.getPlayer().getName())
-                            .replaceAll("%message%", event.signedMessage().message()));
+                            .replaceAll("%message%", event.getMessage()));
                 }
             }
+
+            // Hopefully makes other plugins not pick up the message.
+            event.getRecipients().clear();
         }
     }
 
