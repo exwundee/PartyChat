@@ -154,7 +154,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 } else if (!memberList.get(player).contains(Bukkit.getOfflinePlayer(args[1]))) {
                     sender.sendMessage(getConfigMessage("player-not-in-party-message"));
                 } else if (args[1].equalsIgnoreCase(player.getName())) {
-                    sender.sendMessage(getConfigMessage("transer-self-message"));
+                    sender.sendMessage(getConfigMessage("transfer-self-message"));
                 } else {
                     Player newOwner = Bukkit.getPlayer(args[1]);
                     memberList.put(newOwner, memberList.get(player));

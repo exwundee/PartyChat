@@ -31,7 +31,7 @@ player-not-in-party-message: '&cThat player is not in your party.'
 player-already-in-party-message: '&cThat player is already in a party.'
 
 transfer-invalid-arguments-message: '&cWho do you want to transfer ownerhsip to?"'
-transer-self-message: '&cYou can''t transfer the party to yourself.'
+transfer-self-message: '&cYou can''t transfer the party to yourself.'
 
 invite-invalid-arguments-message: '&cWho do you want to invite?'
 already-invited-message: '&cThat player has already been invited.'
