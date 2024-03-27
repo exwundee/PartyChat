@@ -124,7 +124,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     memberNames.add(player2.getName());
                 }
                 memberNames.remove(currentParty.get(player).getName());
-                sender.sendMessage(ChatColor.YELLOW + "Member: " + ChatColor.WHITE + memberNames.toString().replace("\\[", "").replace("]", ""));
+                sender.sendMessage(ChatColor.YELLOW + "Member: " + ChatColor.WHITE + memberNames.toString().replaceAll("\\[", "").replace("]", ""));
             } else if (args[0].equalsIgnoreCase("leave")) {
                 if (currentParty.get(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
