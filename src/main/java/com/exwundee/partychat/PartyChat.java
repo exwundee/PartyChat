@@ -1,6 +1,5 @@
 package com.exwundee.partychat;
 
-import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -20,17 +19,17 @@ import java.util.HashMap;
 
 public final class PartyChat extends JavaPlugin implements Listener {
 
-    HashMap<Player, Player> currentParty = new HashMap<Player, Player>();
-    HashMap<Player, ArrayList<Player>> inviteList = new HashMap<Player, ArrayList<Player>>();
+    HashMap<String, String> currentParty = new HashMap<String, String>();
+    HashMap<String, ArrayList<String>> inviteList = new HashMap<String, ArrayList<String>>();
 
-    HashMap<Player, ArrayList<Player>> memberList = new HashMap<Player, ArrayList<Player>>();
+    HashMap<String, ArrayList<String>> memberList = new HashMap<String, ArrayList<String>>();
 
-    HashMap<Player, Boolean> isPartyChatEnabled = new HashMap<Player, Boolean>();
-    HashMap<Player, Boolean> isSpying = new HashMap<Player, Boolean>();
+    HashMap<String, Boolean> isPartyChatEnabled = new HashMap<String, Boolean>();
+    HashMap<String, Boolean> isSpying = new HashMap<String, Boolean>();
 
     FileConfiguration config = getConfig();
 
-    HashMap<Player, Player> recentInvite = new HashMap<>();
+    HashMap<String, String> recentInvite = new HashMap<>();
 
 
     @Override
@@ -39,17 +38,105 @@ public final class PartyChat extends JavaPlugin implements Listener {
         saveDefaultConfig();
     }
 
+    public Player getCurrentParty(Player player) {
+        if (currentParty.get(player.getName()) == null) return null;
+        return Bukkit.getPlayer(currentParty.get(player.getName()));
+    }
+
+    public void setCurrentParty(Player player, Player newCurrentParty) {
+        if (newCurrentParty == null) {
+            currentParty.put(player.getName(), null);
+            return;
+        }
+        currentParty.put(player.getName(), newCurrentParty.getName());
+    }
+
+    public ArrayList<Player> getInviteList(Player player) {
+        if (inviteList.get(player.getName()) == null) return null;
+        ArrayList<Player> list = new ArrayList<>();
+        for (String invitedString : inviteList.get(getCurrentParty(player).getName())){
+            list.add(Bukkit.getPlayer(invitedString));
+        }
+        return list;
+    }
+
+    public void setInviteList(Player player, ArrayList<Player> newInviteList) {
+        if (newInviteList == null) {
+            inviteList.put(player.getName(), null);
+            return;
+        }
+        ArrayList<String> list = new ArrayList<String>();
+        for (Player invitedPlayer : newInviteList) {
+            list.add(invitedPlayer.getName());
+        }
+        inviteList.put(player.getName(), list);
+    }
+
+    public ArrayList<Player> getMemberList(Player player) {
+        if (memberList.get(player.getName()) == null) return null;
+        ArrayList<Player> list = new ArrayList<>();
+        for (String invitedString : memberList.get(getCurrentParty(player).getName())){
+            list.add(Bukkit.getPlayer(invitedString));
+        }
+        return list;
+    }
+
+    public void setMemberList(Player player, ArrayList<Player> newMemberList) {
+        if (newMemberList == null) {
+            memberList.put(player.getName(), null);
+            return;
+        }
+        ArrayList<String> list = new ArrayList<String>();
+        for (Player member : newMemberList) {
+            list.add(member.getName());
+        }
+        memberList.put(player.getName(), list);
+    }
+
+    public Player getMostRecentInvite(Player player) {
+        if (recentInvite.get(player.getName()) == null) return null;
+        return Bukkit.getPlayer(recentInvite.get(player.getName()));
+    }
+
+    public void setMostRecentInvite(Player player, Player newRecentPlayer) {
+        if (newRecentPlayer == null) {
+            recentInvite.put(player.getName(), null);
+            return;
+        }
+        recentInvite.put(player.getName(), newRecentPlayer.getName());
+    }
+
+    public boolean getPartyChatEnabled(Player player) {
+        if (isPartyChatEnabled.get(player.getName()) != null)
+            return isPartyChatEnabled.get(player.getName());
+        else return false;
+    }
+
+    public void setPartyChatEnabled(Player player, boolean newValue) {
+        isPartyChatEnabled.put(player.getName(), newValue);
+    }
+
+    public boolean getSpying(Player player) {
+        if (isSpying.get(player.getName()) != null)
+            return isSpying.get(player.getName());
+        else return false;
+    }
+
+    public void setSpying(Player player, boolean newValue) {
+        isSpying.put(player.getName(), newValue);
+    }
+
     @EventHandler(priority = EventPriority.LOWEST)
     public void onChat(AsyncPlayerChatEvent event) {
-        if (isPartyChatEnabled.get(event.getPlayer()) != null && (currentParty.get(event.getPlayer()) != null && isPartyChatEnabled.get(event.getPlayer()))) {
+        if (getPartyChatEnabled(event.getPlayer()) && (getCurrentParty(event.getPlayer()) != null && getPartyChatEnabled(event.getPlayer()))) {
             event.setCancelled(true);
-            for (Player member : memberList.get(currentParty.get(event.getPlayer()))) {
+            for (Player member : getMemberList(getCurrentParty(event.getPlayer()))) {
                 member.sendMessage(getConfigMessage("party-chat-message")
                         .replace("%player%", event.getPlayer().getName())
                         .replace("%message%", event.getMessage()));
             }
             for (Player spy : Bukkit.getOnlinePlayers()) {
-                if (isSpying.get(spy) != null && isSpying.get(spy)) {
+                if (getSpying(spy)) {
                     spy.sendMessage(getConfigMessage("admin-party-chat-message")
                             .replace("%player%", event.getPlayer().getName())
                             .replace("%message%", event.getMessage()));
@@ -64,7 +151,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        if (currentParty.get(player) != null && currentParty.get(player).equals(player)) {
+        if (getCurrentParty(player) != null && getCurrentParty(player).equals(player)) {
             disbandParty(player, false);
         }
     }
@@ -100,53 +187,53 @@ public final class PartyChat extends JavaPlugin implements Listener {
             }
             player = (Player) sender;
             if (args[0].equalsIgnoreCase("create")) {
-                if (currentParty.get(player) != null) {
+                if (getCurrentParty(player) != null) {
                     sender.sendMessage(getConfigMessage("already-in-party-message"));
                     return true;
                 } else {
                     sender.sendMessage(getConfigMessage("party-creation-message"));
-                    currentParty.put(player, player);
+                    setCurrentParty(player, player);
                     ArrayList<Player> newMemberList = new ArrayList<>();
                     newMemberList.add(player);
-                    memberList.put(player, newMemberList);
+                    setMemberList(player, newMemberList);
                 }
             } else if (args[0].equalsIgnoreCase("list")) {
-                if (currentParty.get(player) == null) {
+                if (getCurrentParty(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
                     return true;
                 }
                 sender.sendMessage("");
                 sender.sendMessage(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "PARTY LIST");
                 sender.sendMessage("");
-                sender.sendMessage(ChatColor.GOLD + "Host: " + currentParty.get(player).getName());
+                sender.sendMessage(ChatColor.GOLD + "Host: " + getCurrentParty(player).getName());
                 ArrayList<String> memberNames = new ArrayList<>();
-                for (Player player2 : memberList.get(currentParty.get(player))) {
+                for (Player player2 : getMemberList(getCurrentParty(player))) {
                     memberNames.add(player2.getName());
                 }
-                memberNames.remove(currentParty.get(player).getName());
+                memberNames.remove(getCurrentParty(player).getName());
                 sender.sendMessage(ChatColor.YELLOW + "Member: " + ChatColor.WHITE + memberNames.toString().replaceAll("\\[", "").replace("]", ""));
             } else if (args[0].equalsIgnoreCase("leave")) {
-                if (currentParty.get(player) == null) {
+                if (getCurrentParty(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
                     return true;
                 } else {
-                    if (currentParty.get(player) == player) {
+                    if (getCurrentParty(player) == player) {
                         disbandParty(player, false);
                     } else {
-                        ArrayList<Player> newMemberList = memberList.get(currentParty.get(player));
-                        for (Player player2 : memberList.get(currentParty.get(player))) {
+                        ArrayList<Player> newMemberList = getMemberList(getCurrentParty(player));
+                        for (Player player2 : getMemberList(getCurrentParty(player))) {
                             player2.sendMessage(getConfigMessage("party-leave-message")
                                     .replace("%player%", player.getName()));
                         }
                         newMemberList.remove(player);
-                        memberList.put(currentParty.get(player), newMemberList);
-                        currentParty.put(player, null);
+                        setMemberList(getCurrentParty(player), newMemberList);
+                        setCurrentParty(player, null);
                     }
                 }
             } else if (args[0].equalsIgnoreCase("disband")) {
-                if (currentParty.get(player) == null) {
+                if (getCurrentParty(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
-                } else if (!currentParty.get(player).equals(player)) {
+                } else if (!getCurrentParty(player).equals(player)) {
                     sender.sendMessage(getConfigMessage("not-party-leader-message"));
                 } else {
                     disbandParty(player, false);
@@ -154,36 +241,36 @@ public final class PartyChat extends JavaPlugin implements Listener {
             } else if (args[0].equalsIgnoreCase("transfer")) {
                 if (args.length != 2) {
                     sender.sendMessage(getConfigMessage("transfer-invalid-arguments-message"));
-                } else if (currentParty.get(player) == null) {
+                } else if (getCurrentParty(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
-                } else if (!currentParty.get(player).equals(player)) {
+                } else if (!getCurrentParty(player).equals(player)) {
                     sender.sendMessage(getConfigMessage("not-party-leader-message"));
-                } else if (!memberList.get(player).contains(Bukkit.getOfflinePlayer(args[1]))) {
+                } else if (!getMemberList(player).contains(Bukkit.getOfflinePlayer(args[1]))) {
                     sender.sendMessage(getConfigMessage("player-not-in-party-message"));
                 } else if (args[1].equalsIgnoreCase(player.getName())) {
                     sender.sendMessage(getConfigMessage("transfer-self-message"));
                 } else {
                     Player newOwner = Bukkit.getPlayer(args[1]);
-                    memberList.put(newOwner, memberList.get(player));
-                    for (Player newPlayer : memberList.get(player)) {
-                        currentParty.put(newPlayer, newOwner);
+                    setMemberList(newOwner, getMemberList(player));
+                    for (Player newPlayer : getMemberList(player)) {
+                        setCurrentParty(newPlayer, newOwner);
                         newPlayer.sendMessage(getConfigMessage("ownership-transferred-message")
                                 .replace("%player%", newOwner.getName()));
                     }
-                    memberList.put(player, null);
-                    inviteList.put(player, null);
+                    setMemberList(player, null);
+                    setInviteList(player, null);
                 }
             } else if (args[0].equalsIgnoreCase("invite")) {
-                if (currentParty.get(player) != player) {
+                if (getCurrentParty(player) != player) {
                     sender.sendMessage(getConfigMessage("not-party-leader-message"));
                     return true;
                 } else if (args.length != 2) {
                     sender.sendMessage(getConfigMessage("invite-invalid-arguments-message"));
                     return true;
-                } else if (currentParty.get(Bukkit.getPlayer(args[1])) != null) {
+                } else if (getCurrentParty(Bukkit.getPlayer(args[1])) != null) {
                     sender.sendMessage(getConfigMessage("player-already-in-party-message"));
                     return true;
-                } else if (inviteList.get(player) != null && inviteList.get(player).contains(Bukkit.getPlayer(args[1]))) {
+                } else if (getInviteList(player) != null && getInviteList(player).contains(Bukkit.getPlayer(args[1]))) {
                     sender.sendMessage(getConfigMessage("already-invited-message"));
                     return true;
                 } else if (args[1].equalsIgnoreCase(player.getName())) {
@@ -195,70 +282,74 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     sender.sendMessage(getConfigMessage("sender-invite-message")
                             .replace("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
                     ArrayList<Player> newInviteList = new ArrayList<>();
-                    if (inviteList.get(player) != null) {
-                        newInviteList = inviteList.get(player);
+                    if (getInviteList(player) != null) {
+                        newInviteList = getInviteList(player);
                     }
                     newInviteList.add(Bukkit.getPlayer(args[1]));
-                    inviteList.put(player, newInviteList);
+                    setInviteList(player, newInviteList);
                     Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-message")
                             .replace("%player%", sender.getName()));
                     Player finalPlayer = player;
-                    recentInvite.put(Bukkit.getPlayer(args[1]), player);
+                    setMostRecentInvite(Bukkit.getPlayer(args[1]), player);
                     Bukkit.getScheduler().runTaskLater(this, () -> {
-                        if (inviteList.get(finalPlayer).contains(Bukkit.getPlayer(args[1]))) {
+                        if (getInviteList(finalPlayer).contains(Bukkit.getPlayer(args[1]))) {
                             sender.sendMessage(getConfigMessage("sender-invite-expired-message")
                                     .replace("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
                             Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-expired-message")
                                     .replace("%player%", sender.getName()));
                             ArrayList<Player> newerInviteList = new ArrayList<>();
                             newerInviteList.remove(Bukkit.getPlayer(args[1]));
-                            inviteList.put(finalPlayer, newerInviteList);
+                            setInviteList(finalPlayer, newerInviteList);
                         }
                     }, 20 * 120);
                 }
             } else if (args[0].equalsIgnoreCase("kick")) {
                 if (args.length != 2) {
                     sender.sendMessage(getConfigMessage("kick-invalid-arguments-message"));
-                } else if (currentParty.get(player) == null) {
+                } else if (getCurrentParty(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
-                } else if (!currentParty.get(player).getName().equalsIgnoreCase(player.getName())) {
+                } else if (!getCurrentParty(player).getName().equalsIgnoreCase(player.getName())) {
                     sender.sendMessage(getConfigMessage("not-party-leader-message"));
-                } else if (!memberList.get(currentParty.get(player)).contains(Bukkit.getPlayer(args[1]))) {
+                } else if (!getMemberList(getCurrentParty(player)).contains(Bukkit.getPlayer(args[1]))) {
                     sender.sendMessage(getConfigMessage("player-not-in-party-message"));
                 } else if (player.getName().equalsIgnoreCase(args[1])) {
                     sender.sendMessage(getConfigMessage("kick-self-message"));
                 } else {
                     Player kickedPlayer = Bukkit.getPlayer(args[1]);
-                    ArrayList<Player> newMemberList = memberList.get(currentParty.get(kickedPlayer));
+                    ArrayList<Player> newMemberList = getMemberList(getCurrentParty(kickedPlayer));
                     sender.sendMessage(getConfigMessage("sender-kick-message")
                             .replace("%player%", kickedPlayer.getName()));
-                    for (Player player2 : memberList.get(currentParty.get(kickedPlayer))) {
+                    for (Player player2 : getMemberList(getCurrentParty(kickedPlayer))) {
                         player2.sendMessage(getConfigMessage("party-leave-message")
                                 .replace("%player%", kickedPlayer.getName()));
                     }
                     newMemberList.remove(kickedPlayer);
-                    memberList.put(currentParty.get(kickedPlayer), newMemberList);
-                    currentParty.put(kickedPlayer, null);
+                    setMemberList(getCurrentParty(kickedPlayer), newMemberList);
+                    setCurrentParty(kickedPlayer, null);
                     kickedPlayer.sendMessage(getConfigMessage("recipient-kick-message")
                             .replace("%player%", player.getName()));
                 }
             } else if (args[0].equalsIgnoreCase("deny")) {
                 if (args.length != 2) {
                     sender.sendMessage(getConfigMessage("deny-invalid-arguments-message"));
-                } else if (inviteList.get(Bukkit.getPlayer(args[1])) == null || !(inviteList.get(Bukkit.getPlayer(args[1])).contains(player))) {
+                } else if (getInviteList(Bukkit.getPlayer(args[1])) == null || !(getInviteList(Bukkit.getPlayer(args[1])).contains(player))) {
                     sender.sendMessage(getConfigMessage("not-invited-message"));
                 } else {
-                    inviteList.get(Bukkit.getPlayer(args[1])).remove(player);
+                    getInviteList(Bukkit.getPlayer(args[1])).remove(player);
                     sender.sendMessage(getConfigMessage("deny-success-message")
                             .replace("%player%", Bukkit.getPlayer(args[1]).getName()));
                 }
             } else if (args[0].equalsIgnoreCase("join") || args[0].equalsIgnoreCase("accept")) {
                 if (args.length == 1) {
-                    if (recentInvite.get(player) != null && inviteList.get(recentInvite.get(player)).contains(player)) {
-                        inviteList.get(recentInvite.get(player)).remove(player);
-                        memberList.get(recentInvite.get(player)).add(player);
-                        currentParty.put(player, recentInvite.get(player));
-                        for (Player player2 : memberList.get(currentParty.get(player))) {
+                    if (getMostRecentInvite(player) != null && getInviteList(getMostRecentInvite(player)).contains(player)) {
+                        ArrayList<Player> newInviteList = getInviteList(getMostRecentInvite(player));
+                        newInviteList.remove(player);
+                        ArrayList<Player> newMemberList = getMemberList(getMostRecentInvite(player));
+                        newMemberList.add(player);
+                        setInviteList(getMostRecentInvite(player), newInviteList);
+                        setMemberList(getMostRecentInvite(player), newMemberList);
+                        setCurrentParty(player, getMostRecentInvite(player));
+                        for (Player player2 : getMemberList(getCurrentParty(player))) {
                             player2.sendMessage(getConfigMessage("party-join-message")
                                     .replace("%player%", player.getName()));
                         }
@@ -268,44 +359,48 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     return true;
                 } else if (args.length != 2) {
                      sender.sendMessage(getConfigMessage("join-invalid-arguments-message"));
-                } else if (inviteList.get(Bukkit.getPlayer(args[1])) == null || !(inviteList.get(Bukkit.getPlayer(args[1])).contains(player))) {
+                } else if (getInviteList(Bukkit.getPlayer(args[1])) == null || !(getInviteList(Bukkit.getPlayer(args[1])).contains(player))) {
                     sender.sendMessage(getConfigMessage("not-invited-message"));
-                } else if (currentParty.get(player) != null) {
+                } else if (getCurrentParty(player) != null) {
                     sender.sendMessage(getConfigMessage("already-in-party-message"));
                 } else {
-                    inviteList.get(Bukkit.getPlayer(args[1])).remove(player);
-                    memberList.get(Bukkit.getPlayer(args[1])).add(player);
-                    currentParty.put(player, Bukkit.getPlayer(args[1]));
-                    for (Player player2 : memberList.get(currentParty.get(player))) {
+                    ArrayList<Player> newInviteList = getInviteList(Bukkit.getPlayer(args[1]));
+                    newInviteList.remove(player);
+                    ArrayList<Player> newMemberList = getMemberList(Bukkit.getPlayer(args[1]));
+                    newMemberList.add(player);
+                    setInviteList(Bukkit.getPlayer(args[1]), newInviteList);
+                    setMemberList(Bukkit.getPlayer(args[1]), newMemberList);
+                    setCurrentParty(player, Bukkit.getPlayer(args[1]));
+                    for (Player player2 : getMemberList(getCurrentParty(player))) {
                         player2.sendMessage(getConfigMessage("party-join-message")
                                 .replace("%player%", player.getName()));
                     }
                 }
             } else if (args[0].equalsIgnoreCase("toggle")) {
-                if (currentParty.get(player) == null) {
+                if (getCurrentParty(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
                     return true;
                 }
-                if (isPartyChatEnabled.get(player) == null || !isPartyChatEnabled.get(player)) {
-                    isPartyChatEnabled.put(player, true);
+                if (!getPartyChatEnabled(player)) {
+                    setPartyChatEnabled(player, true);
                     sender.sendMessage(getConfigMessage("party-chat-enabled-message"));
                 } else {
-                    isPartyChatEnabled.put(player, false);
+                    setPartyChatEnabled(player, false);
                     sender.sendMessage(getConfigMessage("party-chat-disabled-message"));
                 }
             } else {
-                if (currentParty.get(player) != null) {
+                if (getCurrentParty(player) != null) {
                     StringBuilder stringBuilder = new StringBuilder();
                     for (int i = 0; i < args.length; i++) {
                         stringBuilder.append(args[i] + " ");
                     }
-                    for (Player member : memberList.get(currentParty.get(player))) {
+                    for (Player member : getMemberList(getCurrentParty(player))) {
                         member.sendMessage(getConfigMessage("party-chat-message")
                                 .replace("%player%", player.getName())
                                 .replace("%message%", stringBuilder.toString()));
                     }
                     for (Player spy : Bukkit.getOnlinePlayers()) {
-                        if (isSpying.get(spy) != null && isSpying.get(spy)) {
+                        if (getSpying(spy)) {
                             spy.sendMessage(getConfigMessage("admin-party-chat-message")
                                     .replace("%player%", player.getName())
                                     .replace("%message%", stringBuilder.toString()));
@@ -320,26 +415,30 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 return true;
             }
             if (args[0].equalsIgnoreCase("spy")) {
-                if (isSpying.get(player) == null || !isSpying.get(player)) {
-                    isSpying.put(player, true);
+                if (!getSpying(player)) {
+                    setSpying(player, true);
                     sender.sendMessage(getConfigMessage("spy-enabled-message"));
                 } else {
-                    isSpying.put(player, false);
+                    setSpying(player, false);
                     sender.sendMessage(getConfigMessage("spy-disabled-message"));
                 }
             } else if (args[0].equalsIgnoreCase("show")) {
                 if (args.length != 2) {
                     sender.sendMessage(getConfigMessage("show-invalid-arguments-message"));
                 } else {
-                    OfflinePlayer checkedPlayer = Bukkit.getOfflinePlayer(args[1]);
+                    if (Bukkit.getPlayer(args[1]) == null) {
+                        sender.sendMessage(getConfigMessage("recipient-not-online-message"));
+                        return true;
+                    }
+                    Player checkedPlayer = Bukkit.getPlayer(args[1]);
                     if (!checkedPlayer.isOnline()) {
                         sender.sendMessage(getConfigMessage("recipient-not-online-message"));
-                    } else if (currentParty.get(checkedPlayer) == null) {
+                    } else if (getCurrentParty(checkedPlayer) == null) {
                         sender.sendMessage(getConfigMessage("recipient-not-in-party-message"));
                     } else {
                         sender.sendMessage(getConfigMessage("show-message")
                                 .replace("%player%", checkedPlayer.getName())
-                                .replace("%group%", currentParty.get(checkedPlayer).getName()));
+                                .replace("%group%", getCurrentParty(checkedPlayer).getName()));
                     }
                 }
             }
@@ -348,8 +447,8 @@ public final class PartyChat extends JavaPlugin implements Listener {
     }
 
     public void disbandParty(Player player, boolean hideMessages) {
-        for (Player player2 : memberList.get(player)) {
-            currentParty.put(player2, null);
+        for (Player player2 : getMemberList(player)) {
+            setCurrentParty(player2, null);
             if (!hideMessages) {
                 if (player2 != player) {
                     player2.sendMessage(getConfigMessage("party-removed-message"));
@@ -358,10 +457,10 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 }
             }
         }
-        if (inviteList.get(player) != null) {
-            inviteList.get(player).clear();
+        if (getInviteList(player) != null) {
+            setInviteList(player, null);
         }
-        memberList.get(player).clear();
+        setMemberList(player, null);
     }
 
 }
