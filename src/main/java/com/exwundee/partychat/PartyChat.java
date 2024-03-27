@@ -45,14 +45,14 @@ public final class PartyChat extends JavaPlugin implements Listener {
             event.setCancelled(true);
             for (Player member : memberList.get(currentParty.get(event.getPlayer()))) {
                 member.sendMessage(getConfigMessage("party-chat-message")
-                        .replaceAll("%player%", event.getPlayer().getName())
-                        .replaceAll("%message%", event.getMessage()));
+                        .replace("%player%", event.getPlayer().getName())
+                        .replace("%message%", event.getMessage()));
             }
             for (Player spy : Bukkit.getOnlinePlayers()) {
                 if (isSpying.get(spy) != null && isSpying.get(spy)) {
                     spy.sendMessage(getConfigMessage("admin-party-chat-message")
-                            .replaceAll("%player%", event.getPlayer().getName())
-                            .replaceAll("%message%", event.getMessage()));
+                            .replace("%player%", event.getPlayer().getName())
+                            .replace("%message%", event.getMessage()));
                 }
             }
 
@@ -124,7 +124,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     memberNames.add(player2.getName());
                 }
                 memberNames.remove(currentParty.get(player).getName());
-                sender.sendMessage(ChatColor.YELLOW + "Member: " + ChatColor.WHITE + memberNames.toString().replaceAll("\\[", "").replaceAll("]", ""));
+                sender.sendMessage(ChatColor.YELLOW + "Member: " + ChatColor.WHITE + memberNames.toString().replace("\\[", "").replace("]", ""));
             } else if (args[0].equalsIgnoreCase("leave")) {
                 if (currentParty.get(player) == null) {
                     sender.sendMessage(getConfigMessage("not-in-party-message"));
@@ -136,7 +136,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                         ArrayList<Player> newMemberList = memberList.get(currentParty.get(player));
                         for (Player player2 : memberList.get(currentParty.get(player))) {
                             player2.sendMessage(getConfigMessage("party-leave-message")
-                                    .replaceAll("%player%", player.getName()));
+                                    .replace("%player%", player.getName()));
                         }
                         newMemberList.remove(player);
                         memberList.put(currentParty.get(player), newMemberList);
@@ -168,7 +168,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     for (Player newPlayer : memberList.get(player)) {
                         currentParty.put(newPlayer, newOwner);
                         newPlayer.sendMessage(getConfigMessage("ownership-transferred-message")
-                                .replaceAll("%player%", newOwner.getName()));
+                                .replace("%player%", newOwner.getName()));
                     }
                     memberList.put(player, null);
                     inviteList.put(player, null);
@@ -193,7 +193,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     sender.sendMessage(getConfigMessage("recipient-not-online-message"));
                 } else {
                     sender.sendMessage(getConfigMessage("sender-invite-message")
-                            .replaceAll("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
+                            .replace("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
                     ArrayList<Player> newInviteList = new ArrayList<>();
                     if (inviteList.get(player) != null) {
                         newInviteList = inviteList.get(player);
@@ -201,15 +201,15 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     newInviteList.add(Bukkit.getPlayer(args[1]));
                     inviteList.put(player, newInviteList);
                     Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-message")
-                            .replaceAll("%player%", sender.getName()));
+                            .replace("%player%", sender.getName()));
                     Player finalPlayer = player;
                     recentInvite.put(Bukkit.getPlayer(args[1]), player);
                     Bukkit.getScheduler().runTaskLater(this, () -> {
                         if (inviteList.get(finalPlayer).contains(Bukkit.getPlayer(args[1]))) {
                             sender.sendMessage(getConfigMessage("sender-invite-expired-message")
-                                    .replaceAll("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
+                                    .replace("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
                             Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-expired-message")
-                                    .replaceAll("%player%", sender.getName()));
+                                    .replace("%player%", sender.getName()));
                             ArrayList<Player> newerInviteList = new ArrayList<>();
                             newerInviteList.remove(Bukkit.getPlayer(args[1]));
                             inviteList.put(finalPlayer, newerInviteList);
@@ -231,16 +231,16 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     Player kickedPlayer = Bukkit.getPlayer(args[1]);
                     ArrayList<Player> newMemberList = memberList.get(currentParty.get(kickedPlayer));
                     sender.sendMessage(getConfigMessage("sender-kick-message")
-                            .replaceAll("%player%", kickedPlayer.getName()));
+                            .replace("%player%", kickedPlayer.getName()));
                     for (Player player2 : memberList.get(currentParty.get(kickedPlayer))) {
                         player2.sendMessage(getConfigMessage("party-leave-message")
-                                .replaceAll("%player%", kickedPlayer.getName()));
+                                .replace("%player%", kickedPlayer.getName()));
                     }
                     newMemberList.remove(kickedPlayer);
                     memberList.put(currentParty.get(kickedPlayer), newMemberList);
                     currentParty.put(kickedPlayer, null);
                     kickedPlayer.sendMessage(getConfigMessage("recipient-kick-message")
-                            .replaceAll("%player%", player.getName()));
+                            .replace("%player%", player.getName()));
                 }
             } else if (args[0].equalsIgnoreCase("deny")) {
                 if (args.length != 2) {
@@ -250,7 +250,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 } else {
                     inviteList.get(Bukkit.getPlayer(args[1])).remove(player);
                     sender.sendMessage(getConfigMessage("deny-success-message")
-                            .replaceAll("%player%", Bukkit.getPlayer(args[1]).getName()));
+                            .replace("%player%", Bukkit.getPlayer(args[1]).getName()));
                 }
             } else if (args[0].equalsIgnoreCase("join") || args[0].equalsIgnoreCase("accept")) {
                 if (args.length == 1) {
@@ -260,7 +260,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                         currentParty.put(player, recentInvite.get(player));
                         for (Player player2 : memberList.get(currentParty.get(player))) {
                             player2.sendMessage(getConfigMessage("party-join-message")
-                                    .replaceAll("%player%", player.getName()));
+                                    .replace("%player%", player.getName()));
                         }
                     } else {
                         sender.sendMessage(getConfigMessage("join-invalid-arguments-message"));
@@ -278,7 +278,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     currentParty.put(player, Bukkit.getPlayer(args[1]));
                     for (Player player2 : memberList.get(currentParty.get(player))) {
                         player2.sendMessage(getConfigMessage("party-join-message")
-                                .replaceAll("%player%", player.getName()));
+                                .replace("%player%", player.getName()));
                     }
                 }
             } else if (args[0].equalsIgnoreCase("toggle")) {
@@ -301,14 +301,14 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     }
                     for (Player member : memberList.get(currentParty.get(player))) {
                         member.sendMessage(getConfigMessage("party-chat-message")
-                                .replaceAll("%player%", player.getName())
-                                .replaceAll("%message%", stringBuilder.toString()));
+                                .replace("%player%", player.getName())
+                                .replace("%message%", stringBuilder.toString()));
                     }
                     for (Player spy : Bukkit.getOnlinePlayers()) {
                         if (isSpying.get(spy) != null && isSpying.get(spy)) {
                             spy.sendMessage(getConfigMessage("admin-party-chat-message")
-                                    .replaceAll("%player%", player.getName())
-                                    .replaceAll("%message%", stringBuilder.toString()));
+                                    .replace("%player%", player.getName())
+                                    .replace("%message%", stringBuilder.toString()));
                         }
                     }
                 }
@@ -338,8 +338,8 @@ public final class PartyChat extends JavaPlugin implements Listener {
                         sender.sendMessage(getConfigMessage("recipient-not-in-party-message"));
                     } else {
                         sender.sendMessage(getConfigMessage("show-message")
-                                .replaceAll("%player%", checkedPlayer.getName())
-                                .replaceAll("%group%", currentParty.get(checkedPlayer).getName()));
+                                .replace("%player%", checkedPlayer.getName())
+                                .replace("%group%", currentParty.get(checkedPlayer).getName()));
                     }
                 }
             }
