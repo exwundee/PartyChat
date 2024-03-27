@@ -457,9 +457,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                 }
             }
         }
-        if (getInviteList(player) != null) {
-            setInviteList(player, null);
-        }
+        setInviteList(player, null);
         setMemberList(player, null);
     }
 
