@@ -193,6 +193,9 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     sender.sendMessage(getConfigMessage("sender-invite-message")
                             .replaceAll("%player%", Bukkit.getOfflinePlayer(args[1]).getName()));
                     ArrayList<Player> newInviteList = new ArrayList<>();
+                    if (inviteList.get(player) != null) {
+                        newInviteList = inviteList.get(player);
+                    }
                     newInviteList.add(Bukkit.getPlayer(args[1]));
                     inviteList.put(player, newInviteList);
                     Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-message")
