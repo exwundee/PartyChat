@@ -30,6 +30,8 @@ public final class PartyChat extends JavaPlugin implements Listener {
 
     FileConfiguration config = getConfig();
 
+    HashMap<Player, Player> recentInvite = new HashMap<>();
+
 
     @Override
     public void onEnable() {
@@ -201,6 +203,7 @@ public final class PartyChat extends JavaPlugin implements Listener {
                     Bukkit.getPlayer(args[1]).sendMessage(getConfigMessage("recipient-invite-message")
                             .replaceAll("%player%", sender.getName()));
                     Player finalPlayer = player;
+                    recentInvite.put(Bukkit.getPlayer(args[1]), player);
                     Bukkit.getScheduler().runTaskLater(this, () -> {
                         if (inviteList.get(finalPlayer).contains(Bukkit.getPlayer(args[1]))) {
                             sender.sendMessage(getConfigMessage("sender-invite-expired-message")
@@ -250,7 +253,20 @@ public final class PartyChat extends JavaPlugin implements Listener {
                             .replaceAll("%player%", Bukkit.getPlayer(args[1]).getName()));
                 }
             } else if (args[0].equalsIgnoreCase("join") || args[0].equalsIgnoreCase("accept")) {
-                if (args.length != 2) {
+                if (args.length == 1) {
+                    if (recentInvite.get(player) != null && inviteList.get(recentInvite.get(player)).contains(player)) {
+                        inviteList.get(recentInvite.get(player)).remove(player);
+                        memberList.get(recentInvite.get(player)).add(player);
+                        currentParty.put(player, recentInvite.get(player));
+                        for (Player player2 : memberList.get(currentParty.get(player))) {
+                            player2.sendMessage(getConfigMessage("party-join-message")
+                                    .replaceAll("%player%", player.getName()));
+                        }
+                    } else {
+                        sender.sendMessage(getConfigMessage("join-invalid-arguments-message"));
+                    }
+                    return true;
+                } else if (args.length != 2) {
                      sender.sendMessage(getConfigMessage("join-invalid-arguments-message"));
                 } else if (inviteList.get(Bukkit.getPlayer(args[1])) == null || !(inviteList.get(Bukkit.getPlayer(args[1])).contains(player))) {
                     sender.sendMessage(getConfigMessage("not-invited-message"));
