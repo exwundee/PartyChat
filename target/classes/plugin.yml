@@ -1,10 +1,10 @@
 name: PartyChat
 version: '1.2'
 main: com.exwundee.partychat.PartyChat
-api-version: '1.20'
+api-version: '1.21.4'
 prefix: PartyChat
-authors: [x1D, Shieldly]
-description: Players can now talk in private! Made with love by Shieldly.
+authors: [x1D]
+description: Players can now talk in private.
 website: https://exwundee.github.io/
 
 commands:
